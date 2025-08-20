@@ -6,6 +6,7 @@ from threading import Thread
 # ---ПУГАМЕ НАЛАШТУВАННЯ ---
 WIDTH, HEIGHT = 800, 600
 init()
+mixer.init()
 screen = display.set_mode((WIDTH, HEIGHT))
 clock = time.Clock()
 display.set_caption("Пінг-Понг")
@@ -38,11 +39,27 @@ def receive():
             break
 
 # --- ШРИФТИ ---
-font_win = font.Font(None, 72)
-font_main = font.Font(None, 36)
+font_win = font.Font("shrifti\\Lobster-Regular.ttf", 72)
+font_main = font.Font("shrifti\\ComicRelief-Bold.ttf", 36)
 # --- ЗОБРАЖЕННЯ ----
 
+bg_image = image.load("imgs\\background.jpg")
+bg_image = transform.scale(bg_image, (WIDTH, HEIGHT))
+
+player1_image = image.load("imgs\\plone.png")
+player2_image = image.load("imgs\\pltwo.png")
+
+player1_image = transform.scale(player1_image, (30, 150))
+player2_image = transform.scale(player2_image, (30, 150))
+
+ball = image.load("imgs\\egg.png") #
+ball = transform.scale(ball, (50, 50))
+
+
+
 # --- ЗВУКИ ---
+sound_wall_hit = mixer.Sound("sound\\classic-punch-impact-352711.mp3")
+sound_raketka_hit = mixer.Sound("sound\\shield_impact-1-382410.mp3")
 
 # --- ГРА ---
 game_over = False
@@ -88,24 +105,25 @@ while True:
         continue  # Блокує гру після перемоги
 
     if game_state:
-        screen.fill((30, 30, 30))
-        draw.rect(screen, (0, 255, 0), (20, game_state['paddles']['0'], 20, 100))
-        draw.rect(screen, (255, 0, 255), (WIDTH - 40, game_state['paddles']['1'], 20, 100))
-        draw.circle(screen, (255, 255, 255), (game_state['ball']['x'], game_state['ball']['y']), 10)
+        #screen.fill((30, 30, 30))
+        screen.blit(bg_image, (0, 0))
+        screen.blit(player1_image, (20, game_state['paddles']['0']))
+        screen.blit(player2_image, (WIDTH - 40, game_state['paddles']['1']))
+        screen.blit(ball, (game_state['ball']['x'], game_state['ball']['y']))
         score_text = font_main.render(f"{game_state['scores'][0]} : {game_state['scores'][1]}", True, (255, 255, 255))
         screen.blit(score_text, (WIDTH // 2 -25, 20))
 
         if game_state['sound_event']:
             if game_state['sound_event'] == 'wall_hit':
                 # звук відбиття м'ячика від стін
-                pass
+                sound_wall_hit.play()
             if game_state['sound_event'] == 'platform_hit':
                 # звук відбиття м'ячика від платформи
-                pass
+                sound_raketka_hit.play()
 
     else:
         wating_text = font_main.render(f"Очікування гравців...", True, (255, 255, 255))
-        screen.blit(wating_text, (WIDTH // 2 - 25, 20))
+        screen.blit(wating_text, (WIDTH // 2 - 170, 20))
 
     display.update()
     clock.tick(60)
@@ -115,3 +133,9 @@ while True:
         client.send(b"UP")
     elif keys[K_s]:
         client.send(b"DOWN")
+
+
+
+
+
+
